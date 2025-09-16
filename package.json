@@ -1,0 +1,30 @@
+{
+  "name": "xiaodu-smart-screen",
+  "version": "1.0.0",
+  "description": "小度智能屏健康档案H5页面",
+  "main": "index.html",
+  "scripts": {
+    "start": "python3 -m http.server 8000",
+    "dev": "python3 -m http.server 8000",
+    "build": "echo 'Static site - no build needed'",
+    "deploy": "echo 'Deploying to Railway...'"
+  },
+  "keywords": [
+    "xiaodu",
+    "smart-screen",
+    "health-archive",
+    "h5",
+    "responsive"
+  ],
+  "author": "oscarka",
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.0.0",
+    "python": ">=3.8.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/oscarka/xiaodu.git"
+  },
+  "homepage": "https://xiaodu.railway.app"
+}

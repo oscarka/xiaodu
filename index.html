@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AQ健康档案 - 小度智能屏版</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+    <!-- 主内容区域 -->
+    <main class="main-container">
+        <!-- 左侧用户信息区 -->
+        <aside class="sidebar">
+            <div class="user-profile">
+            <div class="user-info">
+                <div class="user-avatar-small">
+                    <div class="avatar-circle">张</div>
+                </div>
+                <span class="user-name">张*帆</span>
+                <button class="add-user-btn">+</button>
+            </div>
+                
+                <!-- 3D虚拟人像区域 -->
+                <div class="avatar-3d-container">
+                    <div class="avatar-3d">
+                        <img src="微信图片_20250916153949_57.jpg" 
+                             alt="虚拟人像" 
+                             class="avatar-image"
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="avatar-fallback" style="display: none;">
+                            <div class="avatar-body"></div>
+                            <div class="avatar-head"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 健康状态卡片 - 围绕头像 -->
+                <div class="health-status-cards">
+                    <div class="status-card top-left">
+                        <div class="status-title">健康自测</div>
+                        <div class="status-value">未测</div>
+                    </div>
+                    <div class="status-card top-right">
+                        <div class="status-title">就医资料</div>
+                        <div class="status-value">未上传</div>
+                    </div>
+                    <div class="status-card bottom-left">
+                        <div class="status-title">健康史</div>
+                        <div class="status-value">未上传</div>
+                    </div>
+                    <div class="status-card bottom-right">
+                        <div class="status-title">用药计划</div>
+                        <div class="status-value">未创建</div>
+                    </div>
+                </div>
+                
+                <!-- 智能化横幅 -->
+                <div class="ai-banner">
+                    <div class="banner-icon">🤖</div>
+                    <div class="banner-text">智能化可以替代你的健康档案</div>
+                    <button class="banner-btn">去创建</button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 右侧主内容区 -->
+        <section class="main-content">
+            <!-- 标签页导航 -->
+            <div class="tab-navigation">
+                <div class="tab-item active">就医资料夹</div>
+                <div class="tab-item">健康史</div>
+                <div class="tab-item">用药计划</div>
+                <div class="tab-item">我的药箱</div>
+                <div class="tab-item">更多</div>
+            </div>
+            
+            <!-- 标签页内容 -->
+            <div class="tab-content">
+                <!-- 就医资料夹页面 -->
+                <div class="tab-page active" id="medical-records">
+                    <div class="feature-cards">
+                        <div class="feature-card">
+                            <div class="card-header">
+                                <div class="card-icon medical-record-icon"></div>
+                                <div class="card-status">已上传 3份</div>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-title">门诊病历</div>
+                                <div class="card-description">记录门诊就诊详情，包含症状、诊断、治疗方案</div>
+                                <div class="card-detail">最近更新：2024-09-15</div>
+                                <div class="card-action">查看详情 ></div>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <div class="card-header">
+                                <div class="card-icon prescription-icon"></div>
+                                <div class="card-status">已上传 5份</div>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-title">门诊处方</div>
+                                <div class="card-description">医生开具的处方单，包含药品名称、用法用量</div>
+                                <div class="card-detail">药品统计：12种药品</div>
+                                <div class="card-action">查看详情 ></div>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <div class="card-header">
+                                <div class="card-icon hospital-icon"></div>
+                                <div class="card-status">已上传 1份</div>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-title">住院记录</div>
+                                <div class="card-description">住院期间的详细记录，包含入院、治疗、出院信息</div>
+                                <div class="card-detail">住院时间：2024-08-20 至 2024-08-25</div>
+                                <div class="card-action">查看详情 ></div>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <div class="card-header">
+                                <div class="card-icon report-icon"></div>
+                                <div class="card-status">已上传 2份</div>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-title">体检报告</div>
+                                <div class="card-description">年度体检报告，包含各项检查指标和健康评估</div>
+                                <div class="card-detail">最新体检：2024-07-10</div>
+                                <div class="card-action">查看详情 ></div>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <div class="card-header">
+                                <div class="card-icon vaccine-icon"></div>
+                                <div class="card-status">已上传 4份</div>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-title">疫苗单</div>
+                                <div class="card-description">疫苗接种记录，包含疫苗类型、接种时间、有效期</div>
+                                <div class="card-detail">疫苗种类：新冠、流感、乙肝</div>
+                                <div class="card-action">查看详情 ></div>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <div class="card-header">
+                                <div class="card-icon chart-icon"></div>
+                                <div class="card-status">已上传 8份</div>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-title">报告单</div>
+                                <div class="card-description">各类检查报告单，包含化验、影像、心电图等</div>
+                                <div class="card-detail">异常指标：2项需关注</div>
+                                <div class="card-action">查看详情 ></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 健康史页面 -->
+                <div class="tab-page" id="health-history">
+                    <div class="feature-cards">
+                        <div class="feature-card">
+                            <div class="card-header">
+                                <div class="card-icon profile-icon"></div>
+                                <div class="card-status">已完善</div>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-title">基本信息</div>
+                                <div class="card-description">个人基本信息，包含年龄、性别、身高体重等</div>
+                                <div class="card-detail">年龄：35岁 | 身高：175cm | 体重：70kg</div>
+                                <div class="card-action">编辑信息 ></div>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <div class="card-header">
+                                <div class="card-icon history-icon"></div>
+                                <div class="card-status">已记录 2项</div>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-title">既往病史</div>
+                                <div class="card-description">历史疾病记录，包含疾病名称、诊断时间、治疗情况</div>
+                                <div class="card-detail">主要疾病：高血压、糖尿病</div>
+                                <div class="card-action">查看详情 ></div>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <div class="card-header">
+                                <div class="card-icon family-icon"></div>
+                                <div class="card-status">已记录 3项</div>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-title">家族病史</div>
+                                <div class="card-description">家族遗传疾病记录，包含疾病类型、家族成员关系</div>
+                                <div class="card-detail">遗传疾病：心脏病、高血压</div>
+                                <div class="card-action">查看详情 ></div>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <div class="card-header">
+                                <div class="card-icon allergy-icon"></div>
+                                <div class="card-status">已记录 1项</div>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-title">过敏史</div>
+                                <div class="card-description">过敏原记录，包含过敏物质、严重程度、症状表现</div>
+                                <div class="card-detail">过敏原：花粉 | 严重程度：轻度</div>
+                                <div class="card-action">查看详情 ></div>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <div class="card-header">
+                                <div class="card-icon surgery-icon"></div>
+                                <div class="card-status">已记录 1项</div>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-title">手术史</div>
+                                <div class="card-description">手术记录，包含手术类型、时间、恢复情况</div>
+                                <div class="card-detail">手术类型：阑尾切除术 | 时间：2018年</div>
+                                <div class="card-action">查看详情 ></div>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <div class="card-header">
+                                <div class="card-icon assessment-icon"></div>
+                                <div class="card-status">良好</div>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-title">健康评估</div>
+                                <div class="card-description">综合健康评估，包含风险等级、健康建议、注意事项</div>
+                                <div class="card-detail">风险等级：中等 | 建议：定期体检</div>
+                                <div class="card-action">查看详情 ></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 用药计划页面 -->
+                <div class="tab-page" id="medication-plan">
+                    <div class="feature-cards">
+                        <div class="feature-card">
+                            <div class="card-header">
+                                <div class="card-icon current-meds-icon"></div>
+                                <div class="card-status">正在服用 3种</div>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-title">当前用药</div>
+                                <div class="card-description">正在服用的药品清单，包含药品名称、用法用量、服用时间</div>
+                                <div class="card-detail">降压药、降糖药、维生素</div>
+                                <div class="card-action">查看详情 ></div>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <div class="card-header">
+                                <div class="card-icon reminder-icon"></div>
+                                <div class="card-status">已设置 5个提醒</div>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-title">用药提醒</div>
+                                <div class="card-description">智能用药提醒，包含提醒时间、用药状态、漏服提醒</div>
+                                <div class="card-detail">今日已服药：2/3次</div>
+                                <div class="card-action">查看详情 ></div>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <div class="card-header">
+                                <div class="card-icon interaction-icon"></div>
+                                <div class="card-status">检测通过</div>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-title">药物相互作用</div>
+                                <div class="card-description">药物相互作用检测，包含风险提示、用药建议、注意事项</div>
+                                <div class="card-detail">无严重相互作用</div>
+                                <div class="card-action">查看详情 ></div>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <div class="card-header">
+                                <div class="card-icon record-icon"></div>
+                                <div class="card-status">依从性 85%</div>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-title">用药记录</div>
+                                <div class="card-description">服药历史记录，包含服药时间、依从性统计、效果评估</div>
+                                <div class="card-detail">本月漏服：3次</div>
+                                <div class="card-action">查看详情 ></div>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <div class="card-header">
+                                <div class="card-icon prescription-mgmt-icon"></div>
+                                <div class="card-status">有效处方 2张</div>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-title">处方管理</div>
+                                <div class="card-description">处方药管理，包含处方列表、有效期、续方提醒</div>
+                                <div class="card-detail">即将过期：1张处方</div>
+                                <div class="card-action">查看详情 ></div>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <div class="card-header">
+                                <div class="card-icon stats-icon"></div>
+                                <div class="card-status">本月统计</div>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-title">用药统计</div>
+                                <div class="card-description">用药趋势分析，包含用药频率、效果评估、费用统计</div>
+                                <div class="card-detail">本月费用：¥280</div>
+                                <div class="card-action">查看详情 ></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 我的药箱页面 -->
+                <div class="tab-page" id="medicine-box">
+                    <div class="feature-cards">
+                        <div class="feature-card">
+                            <div class="card-header">
+                                <div class="card-icon medicine-icon"></div>
+                                <div class="card-status">库存 15种</div>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-title">常备药品</div>
+                                <div class="card-description">家庭常备药品清单，包含药品分类、库存数量、存放位置</div>
+                                <div class="card-detail">感冒药、止痛药、消化药</div>
+                                <div class="card-action">查看详情 ></div>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <div class="card-header">
+                                <div class="card-icon low-stock-icon"></div>
+                                <div class="card-status">低库存 2种</div>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-title">库存提醒</div>
+                                <div class="card-description">智能库存提醒，包含低库存、过期提醒、购买建议</div>
+                                <div class="card-detail">布洛芬、感冒灵颗粒</div>
+                                <div class="card-action">查看详情 ></div>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <div class="card-header">
+                                <div class="card-icon purchase-icon"></div>
+                                <div class="card-status">本月购买 3次</div>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-title">购买记录</div>
+                                <div class="card-description">药品购买历史，包含购买时间、价格、购买渠道</div>
+                                <div class="card-detail">总花费：¥156</div>
+                                <div class="card-action">查看详情 ></div>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <div class="card-header">
+                                <div class="card-icon category-icon"></div>
+                                <div class="card-status">已分类 5类</div>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-title">药品分类</div>
+                                <div class="card-description">药品分类管理，包含分类标签、快速查找、智能推荐</div>
+                                <div class="card-detail">感冒、止痛、消化、外用、急救</div>
+                                <div class="card-action">查看详情 ></div>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <div class="card-header">
+                                <div class="card-icon expiry-icon"></div>
+                                <div class="card-status">即将过期 1种</div>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-title">过期管理</div>
+                                <div class="card-description">药品过期管理，包含过期提醒、处理建议、安全处置</div>
+                                <div class="card-detail">阿莫西林胶囊 2024-10-15</div>
+                                <div class="card-action">查看详情 ></div>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <div class="card-header">
+                                <div class="card-icon box-stats-icon"></div>
+                                <div class="card-status">总价值 ¥580</div>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-title">药箱统计</div>
+                                <div class="card-description">药箱统计分析，包含总价值、使用频率、成本分析</div>
+                                <div class="card-detail">使用频率：感冒药最高</div>
+                                <div class="card-action">查看详情 ></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 更多页面 -->
+                <div class="tab-page" id="more">
+                    <div class="feature-cards">
+                        <div class="feature-card">
+                            <div class="card-header">
+                                <div class="card-icon settings-icon"></div>
+                                <div class="card-status">已配置</div>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-title">个人设置</div>
+                                <div class="card-description">个性化设置，包含隐私设置、通知偏好、显示选项</div>
+                                <div class="card-detail">通知：已开启 | 隐私：标准模式</div>
+                                <div class="card-action">进入设置 ></div>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <div class="card-header">
+                                <div class="card-icon data-mgmt-icon"></div>
+                                <div class="card-status">已备份</div>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-title">数据管理</div>
+                                <div class="card-description">数据备份与导出，包含云端同步、数据导出、恢复功能</div>
+                                <div class="card-detail">最后备份：2024-09-16</div>
+                                <div class="card-action">进入管理 ></div>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <div class="card-header">
+                                <div class="card-icon help-icon"></div>
+                                <div class="card-status">在线</div>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-title">帮助中心</div>
+                                <div class="card-description">使用指南与支持，包含常见问题、使用教程、在线客服</div>
+                                <div class="card-detail">常见问题：12个 | 教程：5个</div>
+                                <div class="card-action">进入帮助 ></div>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <div class="card-header">
+                                <div class="card-icon about-icon"></div>
+                                <div class="card-status">v1.2.0</div>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-title">关于应用</div>
+                                <div class="card-description">应用信息与更新，包含版本信息、更新日志、开发团队</div>
+                                <div class="card-detail">最新版本：v1.2.0</div>
+                                <div class="card-action">查看详情 ></div>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <div class="card-header">
+                                <div class="card-icon feedback-icon"></div>
+                                <div class="card-status">已收到 3条</div>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-title">意见反馈</div>
+                                <div class="card-description">用户反馈与建议，包含反馈渠道、建议收集、问题报告</div>
+                                <div class="card-detail">反馈渠道：邮箱、电话、在线</div>
+                                <div class="card-action">提交反馈 ></div>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <div class="card-header">
+                                <div class="card-icon logout-icon"></div>
+                                <div class="card-status">安全退出</div>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-title">退出登录</div>
+                                <div class="card-description">安全退出登录，包含数据清理、隐私保护、重新登录</div>
+                                <div class="card-detail">当前用户：张*帆</div>
+                                <div class="card-action">安全退出 ></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="js/main.js"></script>
+</body>
+</html>

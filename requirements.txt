@@ -1,0 +1,2 @@
+# Python requirements for Railway deployment
+# This file is required for Python-based static site hosting
