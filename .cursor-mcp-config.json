@@ -1,0 +1,14 @@
+{
+  "mcp": {
+    "servers": {
+      "shadcn-ui": {
+        "type": "stdio",
+        "command": "node",
+        "args": ["/Users/cc/xiaodu/shadcn-mcp/start-server.js"],
+        "env": {
+          "FRAMEWORK": "react"
+        }
+      }
+    }
+  }
+}

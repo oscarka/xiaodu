@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AQ健康档案 - 游戏化版本</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- GSAP动画库 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    
+    <!-- 自定义样式 -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .xp-bar {
+            background: linear-gradient(90deg, #10b981, #34d399);
+        }
+        
+        .level-badge {
+            background: linear-gradient(135deg, #f59e0b, #fbbf24);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .achievement-glow {
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes glow {
+            from { box-shadow: 0 0 20px rgba(16, 185, 129, 0.5); }
+            to { box-shadow: 0 0 30px rgba(16, 185, 129, 0.8); }
+        }
+        
+        .progress-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #e5e7eb;
+            transition: all 0.3s ease;
+        }
+        
+        .progress-dot.completed {
+            background: #10b981;
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+        }
+        
+        .progress-dot.current {
+            background: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- 游戏化进度条 -->
+    <div class="gradient-bg text-white p-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center space-x-4">
+                    <div class="level-badge px-3 py-1 rounded-full text-sm font-bold">
+                        Lv.3
+                    </div>
+                    <div class="text-sm">
+                        <span class="font-semibold">张*帆</span>
+                        <span class="text-blue-200">健康档案完成度: 65%</span>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <div class="text-sm text-blue-200">经验值</div>
+                    <div class="text-lg font-bold">750/1000 XP</div>
+                </div>
+            </div>
+            
+            <!-- XP进度条 -->
+            <div class="w-full bg-white/20 rounded-full h-2 mb-2">
+                <div class="xp-bar h-2 rounded-full transition-all duration-1000" style="width: 75%"></div>
+            </div>
+            
+            <!-- 健康档案进度条 -->
+            <div class="w-full bg-white/20 rounded-full h-1">
+                <div class="bg-green-400 h-1 rounded-full transition-all duration-1000" style="width: 65%"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 成就通知 -->
+    <div id="achievement-notification" class="fixed top-4 right-4 z-50 hidden">
+        <div class="achievement-glow bg-white rounded-lg shadow-lg p-4 max-w-sm">
+            <div class="flex items-center space-x-3">
+                <div class="text-2xl">🏆</div>
+                <div>
+                    <div class="font-bold text-gray-900">新成就解锁！</div>
+                    <div class="text-sm text-gray-600">完成健康档案设置</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="max-w-7xl mx-auto p-6">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            
+            <!-- 左侧用户信息区 -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+                    <!-- 用户头像 -->
+                    <div class="flex items-center space-x-3 mb-6">
+                        <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                            张
+                        </div>
+                        <div>
+                            <div class="font-semibold text-gray-900">张*帆</div>
+                            <div class="text-sm text-gray-500">健康档案用户</div>
+                        </div>
+                    </div>
+                    
+                    <!-- 健康状态卡片 -->
+                    <div class="grid grid-cols-2 gap-3 mb-6">
+                        <div class="bg-green-50 rounded-lg p-3 text-center">
+                            <div class="text-green-600 font-bold text-lg">85%</div>
+                            <div class="text-xs text-green-600">健康评分</div>
+                        </div>
+                        <div class="bg-blue-50 rounded-lg p-3 text-center">
+                            <div class="text-blue-600 font-bold text-lg">12</div>
+                            <div class="text-xs text-blue-600">连续天数</div>
+                        </div>
+                    </div>
+                    
+                    <!-- 成就徽章 -->
+                    <div class="space-y-2">
+                        <div class="text-sm font-semibold text-gray-700 mb-2">成就徽章</div>
+                        <div class="flex space-x-2">
+                            <div class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center text-yellow-600 text-sm">🏥</div>
+                            <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center text-green-600 text-sm">💊</div>
+                            <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-sm">📊</div>
+                            <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 text-sm">🎯</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧主内容区 -->
+            <div class="lg:col-span-3">
+                <!-- 标签页导航 -->
+                <div class="flex space-x-1 bg-gray-100 rounded-lg p-1 mb-6">
+                    <button class="tab-btn active px-4 py-2 rounded-md text-sm font-medium transition-all" data-tab="medical">
+                        就医资料夹
+                    </button>
+                    <button class="tab-btn px-4 py-2 rounded-md text-sm font-medium transition-all" data-tab="health">
+                        健康史
+                    </button>
+                    <button class="tab-btn px-4 py-2 rounded-md text-sm font-medium transition-all" data-tab="medication">
+                        用药计划
+                    </button>
+                    <button class="tab-btn px-4 py-2 rounded-md text-sm font-medium transition-all" data-tab="medicine">
+                        我的药箱
+                    </button>
+                </div>
+
+                <!-- 标签页内容 -->
+                <div class="space-y-6">
+                    
+                    <!-- 就医资料夹页面 -->
+                    <div id="medical" class="tab-content">
+                        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                            
+                            <!-- 门诊病历卡片 -->
+                            <div class="card-hover bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                            <span class="text-blue-600 text-lg">🏥</span>
+                                        </div>
+                                        <div>
+                                            <div class="font-semibold text-gray-900">门诊病历</div>
+                                            <div class="text-sm text-gray-500">已上传 3份</div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-medium">
+                                        +50 XP
+                                    </div>
+                                </div>
+                                
+                                <p class="text-gray-600 text-sm mb-4">记录门诊就诊详情，包含症状、诊断、治疗方案</p>
+                                
+                                <div class="text-xs text-gray-500 mb-4">最近更新：2024-09-15</div>
+                                
+                                <!-- 进度点 -->
+                                <div class="flex space-x-1 mb-4">
+                                    <div class="progress-dot completed"></div>
+                                    <div class="progress-dot completed"></div>
+                                    <div class="progress-dot completed"></div>
+                                    <div class="progress-dot"></div>
+                                    <div class="progress-dot"></div>
+                                </div>
+                                
+                                <button class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+                                    查看详情 →
+                                </button>
+                            </div>
+
+                            <!-- 门诊处方卡片 -->
+                            <div class="card-hover bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                                            <span class="text-green-600 text-lg">💊</span>
+                                        </div>
+                                        <div>
+                                            <div class="font-semibold text-gray-900">门诊处方</div>
+                                            <div class="text-sm text-gray-500">已上传 5份</div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-medium">
+                                        +75 XP
+                                    </div>
+                                </div>
+                                
+                                <p class="text-gray-600 text-sm mb-4">医生开具的处方单，包含药品名称、用法用量</p>
+                                
+                                <div class="text-xs text-gray-500 mb-4">药品统计：12种药品</div>
+                                
+                                <!-- 进度点 -->
+                                <div class="flex space-x-1 mb-4">
+                                    <div class="progress-dot completed"></div>
+                                    <div class="progress-dot completed"></div>
+                                    <div class="progress-dot completed"></div>
+                                    <div class="progress-dot completed"></div>
+                                    <div class="progress-dot completed"></div>
+                                </div>
+                                
+                                <button class="w-full bg-green-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-green-700 transition-colors">
+                                    查看详情 →
+                                </button>
+                            </div>
+
+                            <!-- 体检报告卡片 -->
+                            <div class="card-hover bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                                            <span class="text-purple-600 text-lg">📊</span>
+                                        </div>
+                                        <div>
+                                            <div class="font-semibold text-gray-900">体检报告</div>
+                                            <div class="text-sm text-gray-500">已上传 2份</div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-medium">
+                                        +40 XP
+                                    </div>
+                                </div>
+                                
+                                <p class="text-gray-600 text-sm mb-4">年度体检报告，包含各项检查指标和健康评估</p>
+                                
+                                <div class="text-xs text-gray-500 mb-4">最新体检：2024-07-10</div>
+                                
+                                <!-- 进度点 -->
+                                <div class="flex space-x-1 mb-4">
+                                    <div class="progress-dot completed"></div>
+                                    <div class="progress-dot completed"></div>
+                                    <div class="progress-dot"></div>
+                                    <div class="progress-dot"></div>
+                                    <div class="progress-dot"></div>
+                                </div>
+                                
+                                <button class="w-full bg-purple-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors">
+                                    查看详情 →
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // 初始化GSAP
+        gsap.registerPlugin(ScrollTrigger);
+
+        // 页面加载动画
+        gsap.from(".gradient-bg", {
+            duration: 1,
+            y: -100,
+            opacity: 0,
+            ease: "power3.out"
+        });
+
+        gsap.from(".card-hover", {
+            duration: 0.8,
+            y: 50,
+            opacity: 0,
+            stagger: 0.1,
+            ease: "power3.out",
+            delay: 0.3
+        });
+
+        // 标签页切换
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // 移除所有激活状态
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active', 'bg-white', 'text-gray-900'));
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.add('text-gray-600'));
+                
+                // 添加当前激活状态
+                this.classList.add('active', 'bg-white', 'text-gray-900');
+                this.classList.remove('text-gray-600');
+            });
+        });
+
+        // 卡片悬停效果
+        document.querySelectorAll('.card-hover').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                gsap.to(this, {
+                    duration: 0.3,
+                    scale: 1.02,
+                    ease: "power2.out"
+                });
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                gsap.to(this, {
+                    duration: 0.3,
+                    scale: 1,
+                    ease: "power2.out"
+                });
+            });
+        });
+
+        // 显示成就通知
+        setTimeout(() => {
+            const notification = document.getElementById('achievement-notification');
+            notification.classList.remove('hidden');
+            gsap.from(notification, {
+                duration: 0.5,
+                x: 300,
+                opacity: 0,
+                ease: "power3.out"
+            });
+            
+            // 3秒后隐藏
+            setTimeout(() => {
+                gsap.to(notification, {
+                    duration: 0.5,
+                    x: 300,
+                    opacity: 0,
+                    ease: "power3.in",
+                    onComplete: () => notification.classList.add('hidden')
+                });
+            }, 3000);
+        }, 2000);
+
+        // XP进度条动画
+        gsap.to('.xp-bar', {
+            duration: 2,
+            width: '75%',
+            ease: "power2.out",
+            delay: 1
+        });
+
+        // 健康档案进度条动画
+        gsap.to('.bg-green-400', {
+            duration: 2,
+            width: '65%',
+            ease: "power2.out",
+            delay: 1.2
+        });
+    </script>
+</body>
+</html>

@@ -2,10 +2,10 @@
 nixPkgs = ["python39"]
 
 [phases.install]
-cmds = ["echo 'No installation needed for static site'"]
+cmds = ["echo 'Static site - no dependencies to install'"]
 
 [phases.build]
-cmds = ["echo 'No build needed for static site'"]
+cmds = ["echo 'Static site - no build process needed'"]
 
 [start]
 cmd = "python -m http.server $PORT"
