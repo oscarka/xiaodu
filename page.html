@@ -186,55 +186,55 @@
     </div>
 
     <!-- 主内容区域 -->
-    <div class="max-w-7xl mx-auto p-4">
-        <div class="grid grid-cols-1 lg:grid-cols-24 gap-4">
+    <div class="max-w-full mx-auto p-4">
+        <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
             
-            <!-- 左侧用户信息区 - 超紧凑版 -->
-            <div class="lg:col-span-7">
-                <div class="bg-white rounded-xl shadow-sm p-2 mb-4">
+            <!-- 左侧用户信息区 - 横屏适配版 -->
+            <div class="xl:col-span-3">
+                <div class="bg-white rounded-xl shadow-sm p-6 mb-4 h-full">
                     <!-- 用户头像和基本信息 -->
-                    <div class="flex items-center space-x-2 mb-3">
-                        <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-xs">
+                    <div class="flex items-center space-x-4 mb-6">
+                        <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
                             张
                         </div>
                         <div class="flex-1">
-                            <div class="font-semibold text-gray-900 text-sm">张*帆</div>
-                            <div class="text-xs text-gray-500">健康档案用户</div>
+                            <div class="font-semibold text-gray-900 text-lg">张*帆</div>
+                            <div class="text-sm text-gray-500">健康档案用户</div>
                         </div>
-                        <button onclick="switchToOriginalMode()" class="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded-lg text-xs font-medium transition-colors">
+                        <button onclick="switchToOriginalMode()" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
                             返回原版
                         </button>
                     </div>
                     
-                    <!-- 健康状态卡片 - 紧凑版 -->
-                    <div class="grid grid-cols-2 gap-1 mb-3">
-                        <div class="health-score rounded-lg p-2 text-center text-white">
-                            <div class="font-bold text-sm">85%</div>
-                            <div class="text-xs opacity-90">健康评分</div>
+                    <!-- 健康状态卡片 - 横屏版 -->
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div class="health-score rounded-lg p-4 text-center text-white">
+                            <div class="font-bold text-xl">85%</div>
+                            <div class="text-sm opacity-90">健康评分</div>
                         </div>
-                        <div class="streak-days rounded-lg p-2 text-center text-white">
-                            <div class="font-bold text-sm">12</div>
-                            <div class="text-xs opacity-90">连续天数</div>
+                        <div class="streak-days rounded-lg p-4 text-center text-white">
+                            <div class="font-bold text-xl">12</div>
+                            <div class="text-sm opacity-90">连续天数</div>
                         </div>
                     </div>
                     
-                    <!-- 3D虚拟人像区域 - 超紧凑版 -->
-                    <div class="mb-3">
-                        <div class="text-xs font-semibold text-gray-700 mb-2">3D虚拟人像</div>
-                        <div class="relative w-24 h-20 mx-auto mb-2" id="avatar-container">
+                    <!-- 3D虚拟人像区域 - 横屏版 -->
+                    <div class="mb-6">
+                        <div class="text-sm font-semibold text-gray-700 mb-3">3D虚拟人像</div>
+                        <div class="relative w-64 h-80 mx-auto mb-3" id="avatar-container">
                             <!-- 3D场景容器 -->
-                            <div id="three-container" class="w-full h-full rounded-lg overflow-hidden shadow-lg bg-gradient-to-br from-blue-50 to-purple-50"></div>
+                            <div id="three-container" class="w-full h-full rounded-xl overflow-hidden shadow-2xl bg-gradient-to-br from-blue-50 to-purple-50"></div>
                             
                             <!-- 加载状态 -->
-                            <div id="loading-indicator" class="absolute inset-0 flex items-center justify-center bg-white/90 rounded-lg">
+                            <div id="loading-indicator" class="absolute inset-0 flex items-center justify-center bg-white/90 rounded-xl">
                                 <div class="text-center">
-                                    <div class="animate-spin w-6 h-6 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-1"></div>
-                                    <div class="text-xs text-gray-600">加载中...</div>
+                                    <div class="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-2"></div>
+                                    <div class="text-sm text-gray-600">加载3D人像中...</div>
                                 </div>
                             </div>
                             
                             <!-- 状态指示器 -->
-                            <div class="absolute -top-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center text-white text-xs shadow-lg" id="status-indicator">
+                            <div class="absolute -top-2 -right-2 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-sm shadow-lg" id="status-indicator">
                                 ✓
                             </div>
                             
@@ -246,62 +246,62 @@
                             </div>
                         </div>
                         
-                        <!-- 人像信息 - 紧凑版 -->
+                        <!-- 人像信息 - 横屏版 -->
                         <div class="text-center">
-                            <div class="text-xs font-medium text-gray-900">张*帆</div>
-                            <div class="text-xs text-green-600 font-medium mt-1 flex items-center justify-center">
-                                <div class="w-1.5 h-1.5 bg-green-500 rounded-full mr-1 animate-pulse"></div>
-                                在线
+                            <div class="text-sm font-medium text-gray-900">张*帆</div>
+                            <div class="text-sm text-green-600 font-medium mt-1 flex items-center justify-center">
+                                <div class="w-2 h-2 bg-green-500 rounded-full mr-1 animate-pulse"></div>
+                                在线状态
                             </div>
                         </div>
                     </div>
 
-                    <!-- 健康状态卡片 - 超紧凑版 -->
-                    <div class="grid grid-cols-2 gap-1 mb-3">
-                        <div class="bg-blue-50 rounded p-1.5 text-center">
-                            <div class="text-xs text-blue-600">健康自测</div>
-                            <div class="text-xs font-semibold text-blue-800">未测</div>
+                    <!-- 健康状态卡片 - 横屏版 -->
+                    <div class="grid grid-cols-2 gap-3 mb-6">
+                        <div class="bg-blue-50 rounded-lg p-3 text-center">
+                            <div class="text-sm text-blue-600 mb-1">健康自测</div>
+                            <div class="text-sm font-semibold text-blue-800">未测</div>
                         </div>
-                        <div class="bg-green-50 rounded p-1.5 text-center">
-                            <div class="text-xs text-green-600">就医资料</div>
-                            <div class="text-xs font-semibold text-green-800">已上传</div>
+                        <div class="bg-green-50 rounded-lg p-3 text-center">
+                            <div class="text-sm text-green-600 mb-1">就医资料</div>
+                            <div class="text-sm font-semibold text-green-800">已上传</div>
                         </div>
-                        <div class="bg-purple-50 rounded p-1.5 text-center">
-                            <div class="text-xs text-purple-600">健康史</div>
-                            <div class="text-xs font-semibold text-purple-800">已上传</div>
+                        <div class="bg-purple-50 rounded-lg p-3 text-center">
+                            <div class="text-sm text-purple-600 mb-1">健康史</div>
+                            <div class="text-sm font-semibold text-purple-800">已上传</div>
                         </div>
-                        <div class="bg-orange-50 rounded p-1.5 text-center">
-                            <div class="text-xs text-orange-600">用药计划</div>
-                            <div class="text-xs font-semibold text-orange-800">已创建</div>
+                        <div class="bg-orange-50 rounded-lg p-3 text-center">
+                            <div class="text-sm text-orange-600 mb-1">用药计划</div>
+                            <div class="text-sm font-semibold text-orange-800">已创建</div>
                         </div>
                     </div>
 
-                    <!-- 智能化横幅 - 超紧凑版 -->
-                    <div class="bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg p-1.5 mb-2">
-                        <div class="flex items-center space-x-1 text-white">
-                            <div class="text-sm">🤖</div>
-                            <div class="text-xs font-medium">智能化健康档案</div>
+                    <!-- 智能化横幅 - 横屏版 -->
+                    <div class="bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg p-4 mb-4">
+                        <div class="flex items-center space-x-2 text-white">
+                            <div class="text-lg">🤖</div>
+                            <div class="text-sm font-medium">智能化可以替代你的健康档案</div>
                         </div>
-                        <button class="w-full mt-1 bg-white/20 text-white text-xs py-1 px-2 rounded hover:bg-white/30 transition-colors">
+                        <button class="w-full mt-2 bg-white/20 text-white text-sm py-2 px-3 rounded hover:bg-white/30 transition-colors">
                             去创建
                         </button>
                     </div>
                     
-                    <!-- 成就徽章 - 紧凑版 -->
+                    <!-- 成就徽章 - 横屏版 -->
                     <div>
-                        <div class="text-xs font-semibold text-gray-700 mb-1">成就徽章</div>
-                        <div class="flex space-x-1">
-                            <div class="achievement-badge w-6 h-6 bg-yellow-100 rounded-full flex items-center justify-center text-yellow-600 text-xs" title="医院访问">🏥</div>
-                            <div class="achievement-badge w-6 h-6 bg-green-100 rounded-full flex items-center justify-center text-green-600 text-xs" title="用药管理">💊</div>
-                            <div class="achievement-badge w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-xs" title="数据统计">📊</div>
-                            <div class="achievement-badge w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 text-xs" title="目标达成">🎯</div>
+                        <div class="text-sm font-semibold text-gray-700 mb-2">成就徽章</div>
+                        <div class="flex space-x-2">
+                            <div class="achievement-badge w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center text-yellow-600 text-sm" title="医院访问">🏥</div>
+                            <div class="achievement-badge w-8 h-8 bg-green-100 rounded-full flex items-center justify-center text-green-600 text-sm" title="用药管理">💊</div>
+                            <div class="achievement-badge w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-sm" title="数据统计">📊</div>
+                            <div class="achievement-badge w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 text-sm" title="目标达成">🎯</div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- 右侧主内容区 - 超紧凑版 -->
-            <div class="lg:col-span-17">
+            <!-- 右侧主内容区 -->
+            <div class="xl:col-span-9">
                 <!-- 标签页导航 -->
                 <div class="flex space-x-1 bg-gray-100 rounded-lg p-1 mb-6">
                     <button class="tab-btn tab-active px-4 py-2 rounded-md text-sm font-medium transition-all" data-tab="medical">
@@ -1377,14 +1377,14 @@
             scene = new THREE.Scene();
             scene.background = new THREE.Color(0xf0f9ff);
 
-            // 创建相机 - 调整为超紧凑的上半身显示
-            camera = new THREE.PerspectiveCamera(60, 96/80, 0.1, 1000);
+            // 创建相机 - 调整为紧凑尺寸的上半身显示
+            camera = new THREE.PerspectiveCamera(60, 0.8, 0.1, 1000);
             camera.position.set(0, 5.5, 2.5);
             camera.lookAt(0, 5.5, 0); // 让相机正视虚拟人像的头部
 
-            // 创建渲染器 - 调整为超紧凑的尺寸
+            // 创建渲染器 - 横屏适配尺寸
             renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-            renderer.setSize(96, 80);
+            renderer.setSize(256, 320);
             renderer.shadowMap.enabled = true;
             renderer.shadowMap.type = THREE.PCFSoftShadowMap;
             threeContainer.appendChild(renderer.domElement);
@@ -1422,8 +1422,8 @@
                 function(gltf) {
                     avatar = gltf.scene;
                     
-                    // 设置模型属性 - 调整为悬停时的大小
-                    avatar.scale.set(3.08, 3.08, 3.08);
+                    // 设置模型属性 - 横屏适配大小
+                    avatar.scale.set(4.0, 4.0, 4.0);
                     avatar.position.set(0, 0.5, 0);
                     avatar.castShadow = true;
                     avatar.receiveShadow = true;
@@ -1488,14 +1488,14 @@
         function setupAvatarInteractions() {
             if (!avatarContainer) return;
 
-            // 悬停效果 - 稍微放大
+            // 悬停效果 - 横屏适配
             avatarContainer.addEventListener('mouseenter', function() {
                 if (avatar) {
                     gsap.to(avatar.scale, {
                         duration: 0.3,
-                        x: 3.39, // 3.08 * 1.1
-                        y: 3.39,
-                        z: 3.39,
+                        x: 4.4, // 4.0 * 1.1
+                        y: 4.4,
+                        z: 4.4,
                         ease: "power2.out"
                     });
                 }
@@ -1513,9 +1513,9 @@
                 if (avatar) {
                     gsap.to(avatar.scale, {
                         duration: 0.3,
-                        x: 3.08, // 恢复原始大小（现在是悬停时的大小）
-                        y: 3.08,
-                        z: 3.08,
+                        x: 4.0, // 恢复原始横屏大小
+                        y: 4.0,
+                        z: 4.0,
                         ease: "power2.out"
                     });
                 }
@@ -1529,14 +1529,14 @@
                 });
             });
 
-            // 点击效果 - 适配新的默认大小
+            // 点击效果 - 横屏适配
             avatarContainer.addEventListener('click', function() {
                 if (avatar) {
                     gsap.to(avatar.scale, {
                         duration: 0.1,
-                        x: 2.93, // 3.08 * 0.95
-                        y: 2.93,
-                        z: 2.93,
+                        x: 3.8, // 4.0 * 0.95
+                        y: 3.8,
+                        z: 3.8,
                         ease: "power2.out",
                         yoyo: true,
                         repeat: 1
