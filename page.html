@@ -1,0 +1,1617 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AQ健康档案 - 完整游戏化版本</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- GSAP动画库 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    
+    <!-- Three.js 3D库 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    
+    <!-- 自定义样式 -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        * {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .xp-bar {
+            background: linear-gradient(90deg, #10b981, #34d399);
+        }
+        
+        .level-badge {
+            background: linear-gradient(135deg, #f59e0b, #fbbf24);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .achievement-glow {
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes glow {
+            from { box-shadow: 0 0 20px rgba(16, 185, 129, 0.5); }
+            to { box-shadow: 0 0 30px rgba(16, 185, 129, 0.8); }
+        }
+        
+        .progress-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #e5e7eb;
+            transition: all 0.3s ease;
+        }
+        
+        .progress-dot.completed {
+            background: #10b981;
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+        }
+        
+        .progress-dot.current {
+            background: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+        
+        .tab-active {
+            background: white;
+            color: #1f2937;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .tab-inactive {
+            color: #6b7280;
+        }
+        
+        .health-score {
+            background: linear-gradient(135deg, #10b981, #34d399);
+        }
+        
+        .streak-days {
+            background: linear-gradient(135deg, #3b82f6, #60a5fa);
+        }
+        
+        .achievement-badge {
+            transition: all 0.3s ease;
+        }
+        
+        .achievement-badge:hover {
+            transform: scale(1.1);
+        }
+        
+        /* 虚拟人像动画 */
+        .particle {
+            animation: float 4s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) scale(1); opacity: 0.6; }
+            50% { transform: translateY(-10px) scale(1.2); opacity: 1; }
+        }
+        
+        .avatar-pulse {
+            animation: avatarPulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes avatarPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .status-blink {
+            animation: statusBlink 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes statusBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .feature-card {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .feature-card:hover::before {
+            left: 100%;
+        }
+        
+        .xp-gain {
+            animation: xpGain 0.6s ease-out;
+        }
+        
+        @keyframes xpGain {
+            0% { transform: scale(0) rotate(0deg); opacity: 0; }
+            50% { transform: scale(1.2) rotate(180deg); opacity: 1; }
+            100% { transform: scale(1) rotate(360deg); opacity: 0; }
+        }
+        
+        @keyframes ripple {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+    <!-- 成就通知 -->
+    <div id="achievement-notification" class="fixed top-4 right-4 z-50 hidden">
+        <div class="achievement-glow bg-white rounded-lg shadow-lg p-4 max-w-sm">
+            <div class="flex items-center space-x-3">
+                <div class="text-2xl">🏆</div>
+                <div>
+                    <div class="font-bold text-gray-900">新成就解锁！</div>
+                    <div class="text-sm text-gray-600">完成健康档案设置</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="max-w-7xl mx-auto p-4">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
+            
+            <!-- 左侧用户信息区 - 紧凑版 -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-xl shadow-sm p-4 mb-4">
+                    <!-- 用户头像和基本信息 -->
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                            张
+                        </div>
+                        <div class="flex-1">
+                            <div class="font-semibold text-gray-900 text-sm">张*帆</div>
+                            <div class="text-xs text-gray-500">健康档案用户</div>
+                        </div>
+                        <button onclick="switchToOriginalMode()" class="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded-lg text-xs font-medium transition-colors">
+                            返回原版
+                        </button>
+                    </div>
+                    
+                    <!-- 健康状态卡片 - 紧凑版 -->
+                    <div class="grid grid-cols-2 gap-2 mb-4">
+                        <div class="health-score rounded-lg p-2 text-center text-white">
+                            <div class="font-bold text-sm">85%</div>
+                            <div class="text-xs opacity-90">健康评分</div>
+                        </div>
+                        <div class="streak-days rounded-lg p-2 text-center text-white">
+                            <div class="font-bold text-sm">12</div>
+                            <div class="text-xs opacity-90">连续天数</div>
+                        </div>
+                    </div>
+                    
+                    <!-- 3D虚拟人像区域 - 紧凑版 -->
+                    <div class="mb-4">
+                        <div class="text-xs font-semibold text-gray-700 mb-2">3D虚拟人像</div>
+                        <div class="relative w-48 h-60 mx-auto mb-2" id="avatar-container">
+                            <!-- 3D场景容器 -->
+                            <div id="three-container" class="w-full h-full rounded-lg overflow-hidden shadow-lg bg-gradient-to-br from-blue-50 to-purple-50"></div>
+                            
+                            <!-- 加载状态 -->
+                            <div id="loading-indicator" class="absolute inset-0 flex items-center justify-center bg-white/90 rounded-lg">
+                                <div class="text-center">
+                                    <div class="animate-spin w-6 h-6 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-1"></div>
+                                    <div class="text-xs text-gray-600">加载中...</div>
+                                </div>
+                            </div>
+                            
+                            <!-- 状态指示器 -->
+                            <div class="absolute -top-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center text-white text-xs shadow-lg" id="status-indicator">
+                                ✓
+                            </div>
+                            
+                            <!-- 浮动粒子效果 -->
+                            <div class="absolute inset-0 pointer-events-none">
+                                <div class="particle absolute w-1 h-1 bg-blue-400 rounded-full opacity-60" style="top: 20%; left: 30%; animation-delay: 0s;"></div>
+                                <div class="particle absolute w-1 h-1 bg-purple-400 rounded-full opacity-60" style="top: 60%; left: 70%; animation-delay: 1s;"></div>
+                                <div class="particle absolute w-1 h-1 bg-pink-400 rounded-full opacity-60" style="top: 40%; left: 20%; animation-delay: 2s;"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- 人像信息 - 紧凑版 -->
+                        <div class="text-center">
+                            <div class="text-xs font-medium text-gray-900">张*帆</div>
+                            <div class="text-xs text-green-600 font-medium mt-1 flex items-center justify-center">
+                                <div class="w-1.5 h-1.5 bg-green-500 rounded-full mr-1 animate-pulse"></div>
+                                在线
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 健康状态卡片 - 紧凑版 -->
+                    <div class="grid grid-cols-2 gap-1 mb-4">
+                        <div class="bg-blue-50 rounded p-1.5 text-center">
+                            <div class="text-xs text-blue-600">健康自测</div>
+                            <div class="text-xs font-semibold text-blue-800">未测</div>
+                        </div>
+                        <div class="bg-green-50 rounded p-1.5 text-center">
+                            <div class="text-xs text-green-600">就医资料</div>
+                            <div class="text-xs font-semibold text-green-800">已上传</div>
+                        </div>
+                        <div class="bg-purple-50 rounded p-1.5 text-center">
+                            <div class="text-xs text-purple-600">健康史</div>
+                            <div class="text-xs font-semibold text-purple-800">已上传</div>
+                        </div>
+                        <div class="bg-orange-50 rounded p-1.5 text-center">
+                            <div class="text-xs text-orange-600">用药计划</div>
+                            <div class="text-xs font-semibold text-orange-800">已创建</div>
+                        </div>
+                    </div>
+
+                    <!-- 智能化横幅 - 紧凑版 -->
+                    <div class="bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg p-2 mb-3">
+                        <div class="flex items-center space-x-1 text-white">
+                            <div class="text-sm">🤖</div>
+                            <div class="text-xs font-medium">智能化健康档案</div>
+                        </div>
+                        <button class="w-full mt-1 bg-white/20 text-white text-xs py-1 px-2 rounded hover:bg-white/30 transition-colors">
+                            去创建
+                        </button>
+                    </div>
+                    
+                    <!-- 成就徽章 - 紧凑版 -->
+                    <div>
+                        <div class="text-xs font-semibold text-gray-700 mb-1">成就徽章</div>
+                        <div class="flex space-x-1">
+                            <div class="achievement-badge w-6 h-6 bg-yellow-100 rounded-full flex items-center justify-center text-yellow-600 text-xs" title="医院访问">🏥</div>
+                            <div class="achievement-badge w-6 h-6 bg-green-100 rounded-full flex items-center justify-center text-green-600 text-xs" title="用药管理">💊</div>
+                            <div class="achievement-badge w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-xs" title="数据统计">📊</div>
+                            <div class="achievement-badge w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 text-xs" title="目标达成">🎯</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧主内容区 -->
+            <div class="lg:col-span-3">
+                <!-- 标签页导航 -->
+                <div class="flex space-x-1 bg-gray-100 rounded-lg p-1 mb-6">
+                    <button class="tab-btn tab-active px-4 py-2 rounded-md text-sm font-medium transition-all" data-tab="medical">
+                        就医资料夹
+                    </button>
+                    <button class="tab-btn tab-inactive px-4 py-2 rounded-md text-sm font-medium transition-all" data-tab="health">
+                        健康史
+                    </button>
+                    <button class="tab-btn tab-inactive px-4 py-2 rounded-md text-sm font-medium transition-all" data-tab="medication">
+                        用药计划
+                    </button>
+                    <button class="tab-btn tab-inactive px-4 py-2 rounded-md text-sm font-medium transition-all" data-tab="medicine">
+                        我的药箱
+                    </button>
+                    <button class="tab-btn tab-inactive px-4 py-2 rounded-md text-sm font-medium transition-all" data-tab="more">
+                        更多
+                    </button>
+                </div>
+                
+
+                <!-- 标签页内容 -->
+                <div class="space-y-6">
+                    
+                    <!-- 就医资料夹页面 -->
+                    <div id="medical" class="tab-content">
+                        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                            
+                            <!-- 门诊病历卡片 -->
+                            <div class="feature-card card-hover bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                            <span class="text-blue-600 text-lg">🏥</span>
+                                        </div>
+                                        <div>
+                                            <div class="font-semibold text-gray-900">门诊病历</div>
+                                            <div class="text-sm text-gray-500">已上传 3份</div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-medium xp-gain">
+                                        +50 XP
+                                    </div>
+                                </div>
+                                
+                                <p class="text-gray-600 text-sm mb-4">记录门诊就诊详情，包含症状、诊断、治疗方案</p>
+                                
+                                <div class="text-xs text-gray-500 mb-4">最近更新：2024-09-15</div>
+                                
+                                <!-- 进度点 -->
+                                <div class="flex space-x-1 mb-4">
+                                    <div class="progress-dot completed"></div>
+                                    <div class="progress-dot completed"></div>
+                                    <div class="progress-dot completed"></div>
+                                    <div class="progress-dot"></div>
+                                    <div class="progress-dot"></div>
+                                </div>
+                                
+                                <button class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+                                    查看详情 →
+                                </button>
+                            </div>
+
+                            <!-- 门诊处方卡片 -->
+                            <div class="feature-card card-hover bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                                            <span class="text-green-600 text-lg">💊</span>
+                                        </div>
+                                        <div>
+                                            <div class="font-semibold text-gray-900">门诊处方</div>
+                                            <div class="text-sm text-gray-500">已上传 5份</div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-medium xp-gain">
+                                        +75 XP
+                                    </div>
+                                </div>
+                                
+                                <p class="text-gray-600 text-sm mb-4">医生开具的处方单，包含药品名称、用法用量</p>
+                                
+                                <div class="text-xs text-gray-500 mb-4">药品统计：12种药品</div>
+                                
+                                <!-- 进度点 -->
+                                <div class="flex space-x-1 mb-4">
+                                    <div class="progress-dot completed"></div>
+                                    <div class="progress-dot completed"></div>
+                                    <div class="progress-dot completed"></div>
+                                    <div class="progress-dot completed"></div>
+                                    <div class="progress-dot completed"></div>
+                                </div>
+                                
+                                <button class="w-full bg-green-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-green-700 transition-colors">
+                                    查看详情 →
+                                </button>
+                            </div>
+
+                            <!-- 住院记录卡片 -->
+                            <div class="feature-card card-hover bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                                            <span class="text-red-600 text-lg">🏥</span>
+                                        </div>
+                                        <div>
+                                            <div class="font-semibold text-gray-900">住院记录</div>
+                                            <div class="text-sm text-gray-500">已上传 1份</div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-medium xp-gain">
+                                        +30 XP
+                                    </div>
+                                </div>
+                                
+                                <p class="text-gray-600 text-sm mb-4">住院期间的详细记录，包含入院、治疗、出院信息</p>
+                                
+                                <div class="text-xs text-gray-500 mb-4">住院时间：2024-08-20 至 2024-08-25</div>
+                                
+                                <!-- 进度点 -->
+                                <div class="flex space-x-1 mb-4">
+                                    <div class="progress-dot completed"></div>
+                                    <div class="progress-dot"></div>
+                                    <div class="progress-dot"></div>
+                                    <div class="progress-dot"></div>
+                                    <div class="progress-dot"></div>
+                                </div>
+                                
+                                <button class="w-full bg-red-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-red-700 transition-colors">
+                                    查看详情 →
+                                </button>
+                            </div>
+
+                            <!-- 体检报告卡片 -->
+                            <div class="feature-card card-hover bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                                            <span class="text-purple-600 text-lg">📊</span>
+                                        </div>
+                                        <div>
+                                            <div class="font-semibold text-gray-900">体检报告</div>
+                                            <div class="text-sm text-gray-500">已上传 2份</div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-medium xp-gain">
+                                        +40 XP
+                                    </div>
+                                </div>
+                                
+                                <p class="text-gray-600 text-sm mb-4">年度体检报告，包含各项检查指标和健康评估</p>
+                                
+                                <div class="text-xs text-gray-500 mb-4">最新体检：2024-07-10</div>
+                                
+                                <!-- 进度点 -->
+                                <div class="flex space-x-1 mb-4">
+                                    <div class="progress-dot completed"></div>
+                                    <div class="progress-dot completed"></div>
+                                    <div class="progress-dot"></div>
+                                    <div class="progress-dot"></div>
+                                    <div class="progress-dot"></div>
+                                </div>
+                                
+                                <button class="w-full bg-purple-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors">
+                                    查看详情 →
+                                </button>
+                            </div>
+
+                            <!-- 疫苗单卡片 -->
+                            <div class="feature-card card-hover bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
+                                            <span class="text-yellow-600 text-lg">💉</span>
+                                        </div>
+                                        <div>
+                                            <div class="font-semibold text-gray-900">疫苗单</div>
+                                            <div class="text-sm text-gray-500">已上传 4份</div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-medium xp-gain">
+                                        +60 XP
+                                    </div>
+                                </div>
+                                
+                                <p class="text-gray-600 text-sm mb-4">疫苗接种记录，包含疫苗类型、接种时间、有效期</p>
+                                
+                                <div class="text-xs text-gray-500 mb-4">疫苗种类：新冠、流感、乙肝</div>
+                                
+                                <!-- 进度点 -->
+                                <div class="flex space-x-1 mb-4">
+                                    <div class="progress-dot completed"></div>
+                                    <div class="progress-dot completed"></div>
+                                    <div class="progress-dot completed"></div>
+                                    <div class="progress-dot completed"></div>
+                                    <div class="progress-dot"></div>
+                                </div>
+                                
+                                <button class="w-full bg-yellow-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-yellow-700 transition-colors">
+                                    查看详情 →
+                                </button>
+                            </div>
+
+                            <!-- 报告单卡片 -->
+                            <div class="feature-card card-hover bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+                                            <span class="text-indigo-600 text-lg">📋</span>
+                                        </div>
+                                        <div>
+                                            <div class="font-semibold text-gray-900">报告单</div>
+                                            <div class="text-sm text-gray-500">已上传 8份</div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-medium xp-gain">
+                                        +80 XP
+                                    </div>
+                                </div>
+                                
+                                <p class="text-gray-600 text-sm mb-4">各类检查报告单，包含化验、影像、心电图等</p>
+                                
+                                <div class="text-xs text-gray-500 mb-4">异常指标：2项需关注</div>
+                                
+                                <!-- 进度点 -->
+                                <div class="flex space-x-1 mb-4">
+                                    <div class="progress-dot completed"></div>
+                                    <div class="progress-dot completed"></div>
+                                    <div class="progress-dot completed"></div>
+                                    <div class="progress-dot completed"></div>
+                                    <div class="progress-dot completed"></div>
+                                </div>
+                                
+                                <button class="w-full bg-indigo-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors">
+                                    查看详情 →
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- 健康史页面 -->
+                    <div id="health" class="tab-content hidden">
+                        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                            
+                            <!-- 基本信息卡片 -->
+                            <div class="feature-card card-hover bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                            <span class="text-blue-600 text-lg">👤</span>
+                                        </div>
+                                        <div>
+                                            <div class="font-semibold text-gray-900">基本信息</div>
+                                            <div class="text-sm text-gray-500">已完善</div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-medium">
+                                        +25 XP
+                                    </div>
+                                </div>
+                                
+                                <p class="text-gray-600 text-sm mb-4">个人基本信息，包含年龄、性别、身高体重等</p>
+                                
+                                <div class="text-xs text-gray-500 mb-4">年龄：35岁 | 身高：175cm | 体重：70kg</div>
+                                
+                                <button class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+                                    编辑信息 →
+                                </button>
+                            </div>
+
+                            <!-- 既往病史卡片 -->
+                            <div class="feature-card card-hover bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                                            <span class="text-red-600 text-lg">📋</span>
+                                        </div>
+                                        <div>
+                                            <div class="font-semibold text-gray-900">既往病史</div>
+                                            <div class="text-sm text-gray-500">已记录 2项</div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-medium">
+                                        +40 XP
+                                    </div>
+                                </div>
+                                
+                                <p class="text-gray-600 text-sm mb-4">历史疾病记录，包含疾病名称、诊断时间、治疗情况</p>
+                                
+                                <div class="text-xs text-gray-500 mb-4">主要疾病：高血压、糖尿病</div>
+                                
+                                <button class="w-full bg-red-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-red-700 transition-colors">
+                                    查看详情 →
+                                </button>
+                            </div>
+
+                            <!-- 家族病史卡片 -->
+                            <div class="feature-card card-hover bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                                            <span class="text-purple-600 text-lg">👨‍👩‍👧‍👦</span>
+                                        </div>
+                                        <div>
+                                            <div class="font-semibold text-gray-900">家族病史</div>
+                                            <div class="text-sm text-gray-500">已记录 3项</div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-medium">
+                                        +35 XP
+                                    </div>
+                                </div>
+                                
+                                <p class="text-gray-600 text-sm mb-4">家族遗传疾病记录，包含疾病类型、家族成员关系</p>
+                                
+                                <div class="text-xs text-gray-500 mb-4">遗传疾病：心脏病、高血压</div>
+                                
+                                <button class="w-full bg-purple-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors">
+                                    查看详情 →
+                                </button>
+                            </div>
+
+                            <!-- 过敏史卡片 -->
+                            <div class="feature-card card-hover bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
+                                            <span class="text-yellow-600 text-lg">⚠️</span>
+                                        </div>
+                                        <div>
+                                            <div class="font-semibold text-gray-900">过敏史</div>
+                                            <div class="text-sm text-gray-500">已记录 1项</div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-medium">
+                                        +20 XP
+                                    </div>
+                                </div>
+                                
+                                <p class="text-gray-600 text-sm mb-4">过敏原记录，包含过敏物质、严重程度、症状表现</p>
+                                
+                                <div class="text-xs text-gray-500 mb-4">过敏原：花粉 | 严重程度：轻度</div>
+                                
+                                <button class="w-full bg-yellow-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-yellow-700 transition-colors">
+                                    查看详情 →
+                                </button>
+                            </div>
+
+                            <!-- 手术史卡片 -->
+                            <div class="feature-card card-hover bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                                            <span class="text-green-600 text-lg">🏥</span>
+                                        </div>
+                                        <div>
+                                            <div class="font-semibold text-gray-900">手术史</div>
+                                            <div class="text-sm text-gray-500">已记录 1项</div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-medium">
+                                        +30 XP
+                                    </div>
+                                </div>
+                                
+                                <p class="text-gray-600 text-sm mb-4">手术记录，包含手术类型、时间、恢复情况</p>
+                                
+                                <div class="text-xs text-gray-500 mb-4">手术类型：阑尾切除术 | 时间：2018年</div>
+                                
+                                <button class="w-full bg-green-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-green-700 transition-colors">
+                                    查看详情 →
+                                </button>
+                            </div>
+
+                            <!-- 健康评估卡片 -->
+                            <div class="feature-card card-hover bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+                                            <span class="text-indigo-600 text-lg">📊</span>
+                                        </div>
+                                        <div>
+                                            <div class="font-semibold text-gray-900">健康评估</div>
+                                            <div class="text-sm text-gray-500">良好</div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-medium">
+                                        +50 XP
+                                    </div>
+                                </div>
+                                
+                                <p class="text-gray-600 text-sm mb-4">综合健康评估，包含风险等级、健康建议、注意事项</p>
+                                
+                                <div class="text-xs text-gray-500 mb-4">风险等级：中等 | 建议：定期体检</div>
+                                
+                                <button class="w-full bg-indigo-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors">
+                                    查看详情 →
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- 用药计划页面 -->
+                    <div id="medication" class="tab-content hidden">
+                        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                            
+                            <!-- 当前用药卡片 -->
+                            <div class="feature-card card-hover bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                            <span class="text-blue-600 text-lg">💊</span>
+                                        </div>
+                                        <div>
+                                            <div class="font-semibold text-gray-900">当前用药</div>
+                                            <div class="text-sm text-gray-500">正在服用 3种</div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-medium">
+                                        +45 XP
+                                    </div>
+                                </div>
+                                
+                                <p class="text-gray-600 text-sm mb-4">正在服用的药品清单，包含药品名称、用法用量、服用时间</p>
+                                
+                                <div class="text-xs text-gray-500 mb-4">降压药、降糖药、维生素</div>
+                                
+                                <button class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+                                    查看详情 →
+                                </button>
+                            </div>
+
+                            <!-- 用药提醒卡片 -->
+                            <div class="feature-card card-hover bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                                            <span class="text-green-600 text-lg">⏰</span>
+                                        </div>
+                                        <div>
+                                            <div class="font-semibold text-gray-900">用药提醒</div>
+                                            <div class="text-sm text-gray-500">已设置 5个提醒</div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-medium">
+                                        +60 XP
+                                    </div>
+                                </div>
+                                
+                                <p class="text-gray-600 text-sm mb-4">智能用药提醒，包含提醒时间、用药状态、漏服提醒</p>
+                                
+                                <div class="text-xs text-gray-500 mb-4">今日已服药：2/3次</div>
+                                
+                                <button class="w-full bg-green-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-green-700 transition-colors">
+                                    查看详情 →
+                                </button>
+                            </div>
+
+                            <!-- 药物相互作用卡片 -->
+                            <div class="feature-card card-hover bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
+                                            <span class="text-yellow-600 text-lg">⚠️</span>
+                                        </div>
+                                        <div>
+                                            <div class="font-semibold text-gray-900">药物相互作用</div>
+                                            <div class="text-sm text-gray-500">检测通过</div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-medium">
+                                        +35 XP
+                                    </div>
+                                </div>
+                                
+                                <p class="text-gray-600 text-sm mb-4">药物相互作用检测，包含风险提示、用药建议、注意事项</p>
+                                
+                                <div class="text-xs text-gray-500 mb-4">无严重相互作用</div>
+                                
+                                <button class="w-full bg-yellow-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-yellow-700 transition-colors">
+                                    查看详情 →
+                                </button>
+                            </div>
+
+                            <!-- 用药记录卡片 -->
+                            <div class="feature-card card-hover bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                                            <span class="text-purple-600 text-lg">📊</span>
+                                        </div>
+                                        <div>
+                                            <div class="font-semibold text-gray-900">用药记录</div>
+                                            <div class="text-sm text-gray-500">依从性 85%</div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-medium">
+                                        +55 XP
+                                    </div>
+                                </div>
+                                
+                                <p class="text-gray-600 text-sm mb-4">服药历史记录，包含服药时间、依从性统计、效果评估</p>
+                                
+                                <div class="text-xs text-gray-500 mb-4">本月漏服：3次</div>
+                                
+                                <button class="w-full bg-purple-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors">
+                                    查看详情 →
+                                </button>
+                            </div>
+
+                            <!-- 处方管理卡片 -->
+                            <div class="feature-card card-hover bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                                            <span class="text-red-600 text-lg">📋</span>
+                                        </div>
+                                        <div>
+                                            <div class="font-semibold text-gray-900">处方管理</div>
+                                            <div class="text-sm text-gray-500">有效处方 2张</div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-medium">
+                                        +40 XP
+                                    </div>
+                                </div>
+                                
+                                <p class="text-gray-600 text-sm mb-4">处方药管理，包含处方列表、有效期、续方提醒</p>
+                                
+                                <div class="text-xs text-gray-500 mb-4">即将过期：1张处方</div>
+                                
+                                <button class="w-full bg-red-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-red-700 transition-colors">
+                                    查看详情 →
+                                </button>
+                            </div>
+
+                            <!-- 用药统计卡片 -->
+                            <div class="feature-card card-hover bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+                                            <span class="text-indigo-600 text-lg">📈</span>
+                                        </div>
+                                        <div>
+                                            <div class="font-semibold text-gray-900">用药统计</div>
+                                            <div class="text-sm text-gray-500">本月统计</div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-medium">
+                                        +30 XP
+                                    </div>
+                                </div>
+                                
+                                <p class="text-gray-600 text-sm mb-4">用药趋势分析，包含用药频率、效果评估、费用统计</p>
+                                
+                                <div class="text-xs text-gray-500 mb-4">本月费用：¥280</div>
+                                
+                                <button class="w-full bg-indigo-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors">
+                                    查看详情 →
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- 我的药箱页面 -->
+                    <div id="medicine" class="tab-content hidden">
+                        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                            
+                            <!-- 常备药品卡片 -->
+                            <div class="feature-card card-hover bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                                            <span class="text-green-600 text-lg">💊</span>
+                                        </div>
+                                        <div>
+                                            <div class="font-semibold text-gray-900">常备药品</div>
+                                            <div class="text-sm text-gray-500">库存 15种</div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-medium">
+                                        +50 XP
+                                    </div>
+                                </div>
+                                
+                                <p class="text-gray-600 text-sm mb-4">家庭常备药品清单，包含药品分类、库存数量、存放位置</p>
+                                
+                                <div class="text-xs text-gray-500 mb-4">感冒药、止痛药、消化药</div>
+                                
+                                <button class="w-full bg-green-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-green-700 transition-colors">
+                                    查看详情 →
+                                </button>
+                            </div>
+
+                            <!-- 库存提醒卡片 -->
+                            <div class="feature-card card-hover bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
+                                            <span class="text-yellow-600 text-lg">⚠️</span>
+                                        </div>
+                                        <div>
+                                            <div class="font-semibold text-gray-900">库存提醒</div>
+                                            <div class="text-sm text-gray-500">低库存 2种</div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-medium">
+                                        +25 XP
+                                    </div>
+                                </div>
+                                
+                                <p class="text-gray-600 text-sm mb-4">智能库存提醒，包含低库存、过期提醒、购买建议</p>
+                                
+                                <div class="text-xs text-gray-500 mb-4">布洛芬、感冒灵颗粒</div>
+                                
+                                <button class="w-full bg-yellow-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-yellow-700 transition-colors">
+                                    查看详情 →
+                                </button>
+                            </div>
+
+                            <!-- 购买记录卡片 -->
+                            <div class="feature-card card-hover bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                            <span class="text-blue-600 text-lg">🛒</span>
+                                        </div>
+                                        <div>
+                                            <div class="font-semibold text-gray-900">购买记录</div>
+                                            <div class="text-sm text-gray-500">本月购买 3次</div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-medium">
+                                        +35 XP
+                                    </div>
+                                </div>
+                                
+                                <p class="text-gray-600 text-sm mb-4">药品购买历史，包含购买时间、价格、购买渠道</p>
+                                
+                                <div class="text-xs text-gray-500 mb-4">总花费：¥156</div>
+                                
+                                <button class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+                                    查看详情 →
+                                </button>
+                            </div>
+
+                            <!-- 药品分类卡片 -->
+                            <div class="feature-card card-hover bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                                            <span class="text-purple-600 text-lg">🏷️</span>
+                                        </div>
+                                        <div>
+                                            <div class="font-semibold text-gray-900">药品分类</div>
+                                            <div class="text-sm text-gray-500">已分类 5类</div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-medium">
+                                        +30 XP
+                                    </div>
+                                </div>
+                                
+                                <p class="text-gray-600 text-sm mb-4">药品分类管理，包含分类标签、快速查找、智能推荐</p>
+                                
+                                <div class="text-xs text-gray-500 mb-4">感冒、止痛、消化、外用、急救</div>
+                                
+                                <button class="w-full bg-purple-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors">
+                                    查看详情 →
+                                </button>
+                            </div>
+
+                            <!-- 过期管理卡片 -->
+                            <div class="feature-card card-hover bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                                            <span class="text-red-600 text-lg">⏰</span>
+                                        </div>
+                                        <div>
+                                            <div class="font-semibold text-gray-900">过期管理</div>
+                                            <div class="text-sm text-gray-500">即将过期 1种</div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-medium">
+                                        +20 XP
+                                    </div>
+                                </div>
+                                
+                                <p class="text-gray-600 text-sm mb-4">药品过期管理，包含过期提醒、处理建议、安全处置</p>
+                                
+                                <div class="text-xs text-gray-500 mb-4">阿莫西林胶囊 2024-10-15</div>
+                                
+                                <button class="w-full bg-red-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-red-700 transition-colors">
+                                    查看详情 →
+                                </button>
+                            </div>
+
+                            <!-- 药箱统计卡片 -->
+                            <div class="feature-card card-hover bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+                                            <span class="text-indigo-600 text-lg">📊</span>
+                                        </div>
+                                        <div>
+                                            <div class="font-semibold text-gray-900">药箱统计</div>
+                                            <div class="text-sm text-gray-500">总价值 ¥580</div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-medium">
+                                        +40 XP
+                                    </div>
+                                </div>
+                                
+                                <p class="text-gray-600 text-sm mb-4">药箱统计分析，包含总价值、使用频率、成本分析</p>
+                                
+                                <div class="text-xs text-gray-500 mb-4">使用频率：感冒药最高</div>
+                                
+                                <button class="w-full bg-indigo-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors">
+                                    查看详情 →
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- 更多页面 -->
+                    <div id="more" class="tab-content hidden">
+                        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                            
+                            <!-- 个人设置卡片 -->
+                            <div class="feature-card card-hover bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                                            <span class="text-gray-600 text-lg">⚙️</span>
+                                        </div>
+                                        <div>
+                                            <div class="font-semibold text-gray-900">个人设置</div>
+                                            <div class="text-sm text-gray-500">已配置</div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-medium">
+                                        +15 XP
+                                    </div>
+                                </div>
+                                
+                                <p class="text-gray-600 text-sm mb-4">个性化设置，包含隐私设置、通知偏好、显示选项</p>
+                                
+                                <div class="text-xs text-gray-500 mb-4">通知：已开启 | 隐私：标准模式</div>
+                                
+                                <button class="w-full bg-gray-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-gray-700 transition-colors">
+                                    进入设置 →
+                                </button>
+                            </div>
+
+                            <!-- 数据管理卡片 -->
+                            <div class="feature-card card-hover bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                            <span class="text-blue-600 text-lg">💾</span>
+                                        </div>
+                                        <div>
+                                            <div class="font-semibold text-gray-900">数据管理</div>
+                                            <div class="text-sm text-gray-500">已备份</div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-medium">
+                                        +25 XP
+                                    </div>
+                                </div>
+                                
+                                <p class="text-gray-600 text-sm mb-4">数据备份与导出，包含云端同步、数据导出、恢复功能</p>
+                                
+                                <div class="text-xs text-gray-500 mb-4">最后备份：2024-09-16</div>
+                                
+                                <button class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+                                    进入管理 →
+                                </button>
+                            </div>
+
+                            <!-- 帮助中心卡片 -->
+                            <div class="feature-card card-hover bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                                            <span class="text-green-600 text-lg">❓</span>
+                                        </div>
+                                        <div>
+                                            <div class="font-semibold text-gray-900">帮助中心</div>
+                                            <div class="text-sm text-gray-500">在线</div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-medium">
+                                        +10 XP
+                                    </div>
+                                </div>
+                                
+                                <p class="text-gray-600 text-sm mb-4">使用指南与支持，包含常见问题、使用教程、在线客服</p>
+                                
+                                <div class="text-xs text-gray-500 mb-4">常见问题：12个 | 教程：5个</div>
+                                
+                                <button class="w-full bg-green-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-green-700 transition-colors">
+                                    进入帮助 →
+                                </button>
+                            </div>
+
+                            <!-- 关于应用卡片 -->
+                            <div class="feature-card card-hover bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                                            <span class="text-purple-600 text-lg">ℹ️</span>
+                                        </div>
+                                        <div>
+                                            <div class="font-semibold text-gray-900">关于应用</div>
+                                            <div class="text-sm text-gray-500">v1.2.0</div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-medium">
+                                        +5 XP
+                                    </div>
+                                </div>
+                                
+                                <p class="text-gray-600 text-sm mb-4">应用信息与更新，包含版本信息、更新日志、开发团队</p>
+                                
+                                <div class="text-xs text-gray-500 mb-4">最新版本：v1.2.0</div>
+                                
+                                <button class="w-full bg-purple-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors">
+                                    查看详情 →
+                                </button>
+                            </div>
+
+                            <!-- 意见反馈卡片 -->
+                            <div class="feature-card card-hover bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
+                                            <span class="text-yellow-600 text-lg">💬</span>
+                                        </div>
+                                        <div>
+                                            <div class="font-semibold text-gray-900">意见反馈</div>
+                                            <div class="text-sm text-gray-500">已收到 3条</div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-medium">
+                                        +20 XP
+                                    </div>
+                                </div>
+                                
+                                <p class="text-gray-600 text-sm mb-4">用户反馈与建议，包含反馈渠道、建议收集、问题报告</p>
+                                
+                                <div class="text-xs text-gray-500 mb-4">反馈渠道：邮箱、电话、在线</div>
+                                
+                                <button class="w-full bg-yellow-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-yellow-700 transition-colors">
+                                    提交反馈 →
+                                </button>
+                            </div>
+
+                            <!-- 退出登录卡片 -->
+                            <div class="feature-card card-hover bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                                            <span class="text-red-600 text-lg">🚪</span>
+                                        </div>
+                                        <div>
+                                            <div class="font-semibold text-gray-900">退出登录</div>
+                                            <div class="text-sm text-gray-500">安全退出</div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full font-medium">
+                                        无奖励
+                                    </div>
+                                </div>
+                                
+                                <p class="text-gray-600 text-sm mb-4">安全退出登录，包含数据清理、隐私保护、重新登录</p>
+                                
+                                <div class="text-xs text-gray-500 mb-4">当前用户：张*帆</div>
+                                
+                                <button class="w-full bg-red-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-red-700 transition-colors">
+                                    安全退出 →
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // 初始化GSAP
+        gsap.registerPlugin(ScrollTrigger);
+
+        // 页面加载动画
+        gsap.from(".gradient-bg", {
+            duration: 1,
+            y: -100,
+            opacity: 0,
+            ease: "power3.out"
+        });
+
+        // 页面加载动画 - 优化速度
+        gsap.from(".feature-card", {
+            duration: 0.5,
+            y: 30,
+            opacity: 0,
+            stagger: 0.05,
+            ease: "power2.out",
+            delay: 0.1,
+            onComplete: function() {
+                console.log('✅ 页面加载动画完成');
+                // 确保就医资料夹的卡片可见
+                const medicalCards = document.querySelectorAll('#medical .feature-card');
+                medicalCards.forEach(card => {
+                    card.style.opacity = '1';
+                    card.style.visibility = 'visible';
+                });
+            }
+        });
+
+        // 标签页切换功能
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const targetTab = this.getAttribute('data-tab');
+                
+                // 移除所有激活状态
+                document.querySelectorAll('.tab-btn').forEach(b => {
+                    b.classList.remove('tab-active');
+                    b.classList.add('tab-inactive');
+                });
+                
+                // 隐藏所有标签页内容
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.add('hidden');
+                });
+                
+                // 添加当前激活状态
+                this.classList.remove('tab-inactive');
+                this.classList.add('tab-active');
+                
+                // 显示目标标签页内容
+                const targetContent = document.getElementById(targetTab);
+                if (targetContent) {
+                    targetContent.classList.remove('hidden');
+                    
+                    // 为新显示的内容添加动画
+                    gsap.from(targetContent.querySelectorAll('.feature-card'), {
+                        duration: 0.4,
+                        y: 20,
+                        opacity: 0,
+                        stagger: 0.05,
+                        ease: "power2.out"
+                    });
+                }
+            });
+        });
+
+        // 确保页面加载时就医资料夹正确显示
+        document.addEventListener('DOMContentLoaded', function() {
+            // 确保就医资料夹是默认显示的
+            const medicalTab = document.getElementById('medical');
+            if (medicalTab) {
+                medicalTab.classList.remove('hidden');
+            }
+            
+            // 确保就医资料夹按钮是激活状态
+            const medicalBtn = document.querySelector('[data-tab="medical"]');
+            if (medicalBtn) {
+                medicalBtn.classList.remove('tab-inactive');
+                medicalBtn.classList.add('tab-active');
+            }
+        });
+
+        // 卡片悬停效果
+        document.querySelectorAll('.feature-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                gsap.to(this, {
+                    duration: 0.3,
+                    scale: 1.02,
+                    ease: "power2.out"
+                });
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                gsap.to(this, {
+                    duration: 0.3,
+                    scale: 1,
+                    ease: "power2.out"
+                });
+            });
+        });
+
+        // 成就徽章悬停效果
+        document.querySelectorAll('.achievement-badge').forEach(badge => {
+            badge.addEventListener('mouseenter', function() {
+                gsap.to(this, {
+                    duration: 0.3,
+                    scale: 1.2,
+                    rotation: 10,
+                    ease: "power2.out"
+                });
+            });
+            
+            badge.addEventListener('mouseleave', function() {
+                gsap.to(this, {
+                    duration: 0.3,
+                    scale: 1,
+                    rotation: 0,
+                    ease: "power2.out"
+                });
+            });
+        });
+
+        // 显示成就通知
+        setTimeout(() => {
+            const notification = document.getElementById('achievement-notification');
+            notification.classList.remove('hidden');
+            gsap.from(notification, {
+                duration: 0.5,
+                x: 300,
+                opacity: 0,
+                ease: "power3.out"
+            });
+            
+            // 3秒后隐藏
+            setTimeout(() => {
+                gsap.to(notification, {
+                    duration: 0.5,
+                    x: 300,
+                    opacity: 0,
+                    ease: "power3.in",
+                    onComplete: () => notification.classList.add('hidden')
+                });
+            }, 3000);
+        }, 2000);
+
+        // XP进度条动画
+        gsap.to('.xp-bar', {
+            duration: 2,
+            width: '75%',
+            ease: "power2.out",
+            delay: 1
+        });
+
+        // 健康档案进度条动画
+        gsap.to('.bg-green-400', {
+            duration: 2,
+            width: '65%',
+            ease: "power2.out",
+            delay: 1.2
+        });
+
+        // 3D虚拟人像系统
+        let scene, camera, renderer, avatar, mixer, clock;
+        const avatarContainer = document.getElementById('avatar-container');
+        const threeContainer = document.getElementById('three-container');
+        const loadingIndicator = document.getElementById('loading-indicator');
+        const statusIndicator = document.getElementById('status-indicator');
+        const particles = document.querySelectorAll('.particle');
+
+        // 初始化3D场景
+        function initThreeJS() {
+            // 创建场景
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xf0f9ff);
+
+            // 创建相机 - 调整为紧凑尺寸的上半身显示
+            camera = new THREE.PerspectiveCamera(60, 0.8, 0.1, 1000);
+            camera.position.set(0, 5.5, 2.5);
+            camera.lookAt(0, 5.5, 0); // 让相机正视虚拟人像的头部
+
+            // 创建渲染器 - 调整为紧凑尺寸
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(192, 240);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            threeContainer.appendChild(renderer.domElement);
+
+            // 添加灯光
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
+
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(5, 10, 5);
+            directionalLight.castShadow = true;
+            directionalLight.shadow.mapSize.width = 2048;
+            directionalLight.shadow.mapSize.height = 2048;
+            scene.add(directionalLight);
+
+            // 添加点光源
+            const pointLight = new THREE.PointLight(0x4f46e5, 0.5, 100);
+            pointLight.position.set(-5, 5, 5);
+            scene.add(pointLight);
+
+            // 创建时钟
+            clock = new THREE.Clock();
+
+            // 加载3D模型
+            loadAvatar();
+        }
+
+        // 加载Ready Player Me虚拟人像
+        function loadAvatar() {
+            const loader = new THREE.GLTFLoader();
+            const avatarUrl = 'https://models.readyplayer.me/68ccbdc0847fca11a7bb1d5e.glb';
+
+            loader.load(
+                avatarUrl,
+                function(gltf) {
+                    avatar = gltf.scene;
+                    
+                    // 设置模型属性 - 调整为悬停时的大小
+                    avatar.scale.set(3.08, 3.08, 3.08);
+                    avatar.position.set(0, 0.5, 0);
+                    avatar.castShadow = true;
+                    avatar.receiveShadow = true;
+
+                    // 添加到场景
+                    scene.add(avatar);
+
+                    // 设置动画混合器
+                    if (gltf.animations && gltf.animations.length > 0) {
+                        mixer = new THREE.AnimationMixer(avatar);
+                        const action = mixer.clipAction(gltf.animations[0]);
+                        action.play();
+                    }
+
+                    // 隐藏加载指示器
+                    loadingIndicator.style.display = 'none';
+
+                    // 开始渲染循环
+                    animate();
+
+                    // 添加交互效果
+                    setupAvatarInteractions();
+
+                    console.log('✅ 3D虚拟人像加载成功！');
+                },
+                function(progress) {
+                    const percent = (progress.loaded / progress.total) * 100;
+                    console.log('🔄 加载进度:', percent.toFixed(0) + '%');
+                },
+                function(error) {
+                    console.error('❌ 加载3D模型失败:', error);
+                    loadingIndicator.innerHTML = `
+                        <div class="text-center text-red-500">
+                            <div class="text-2xl mb-2">😞</div>
+                            <div class="text-sm">加载失败，请刷新重试</div>
+                        </div>
+                    `;
+                }
+            );
+        }
+
+        // 渲染循环
+        function animate() {
+            requestAnimationFrame(animate);
+
+            if (mixer) {
+                mixer.update(clock.getDelta());
+            }
+
+            // 保持正面朝前，不旋转
+            if (avatar) {
+                avatar.rotation.y = 0; // 确保始终正面朝前
+            }
+
+            // 确保相机始终正视虚拟人像
+            camera.lookAt(0, 5.5, 0);
+
+            renderer.render(scene, camera);
+        }
+
+        // 设置头像交互效果
+        function setupAvatarInteractions() {
+            if (!avatarContainer) return;
+
+            // 悬停效果 - 稍微放大
+            avatarContainer.addEventListener('mouseenter', function() {
+                if (avatar) {
+                    gsap.to(avatar.scale, {
+                        duration: 0.3,
+                        x: 3.39, // 3.08 * 1.1
+                        y: 3.39,
+                        z: 3.39,
+                        ease: "power2.out"
+                    });
+                }
+                
+                gsap.to(particles, {
+                    duration: 0.5,
+                    scale: 1.5,
+                    opacity: 1,
+                    stagger: 0.1,
+                    ease: "power2.out"
+                });
+            });
+            
+            avatarContainer.addEventListener('mouseleave', function() {
+                if (avatar) {
+                    gsap.to(avatar.scale, {
+                        duration: 0.3,
+                        x: 3.08, // 恢复原始大小（现在是悬停时的大小）
+                        y: 3.08,
+                        z: 3.08,
+                        ease: "power2.out"
+                    });
+                }
+                
+                gsap.to(particles, {
+                    duration: 0.5,
+                    scale: 1,
+                    opacity: 0.6,
+                    stagger: 0.1,
+                    ease: "power2.out"
+                });
+            });
+
+            // 点击效果 - 适配新的默认大小
+            avatarContainer.addEventListener('click', function() {
+                if (avatar) {
+                    gsap.to(avatar.scale, {
+                        duration: 0.1,
+                        x: 2.93, // 3.08 * 0.95
+                        y: 2.93,
+                        z: 2.93,
+                        ease: "power2.out",
+                        yoyo: true,
+                        repeat: 1
+                    });
+                }
+                
+                // 创建点击波纹效果
+                const ripple = document.createElement('div');
+                ripple.style.cssText = `
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    width: 0;
+                    height: 0;
+                    background: rgba(79, 70, 229, 0.3);
+                    border-radius: 50%;
+                    transform: translate(-50%, -50%);
+                    pointer-events: none;
+                    z-index: 10;
+                `;
+                avatarContainer.appendChild(ripple);
+                
+                gsap.to(ripple, {
+                    duration: 0.6,
+                    width: '160px',
+                    height: '160px',
+                    opacity: 0,
+                    ease: "power2.out",
+                    onComplete: () => ripple.remove()
+                });
+            });
+        }
+
+        // 状态指示器闪烁
+        if (statusIndicator) {
+            gsap.to(statusIndicator, {
+                duration: 1.5,
+                opacity: 0.5,
+                ease: "power2.inOut",
+                yoyo: true,
+                repeat: -1
+            });
+        }
+
+        // 粒子随机浮动
+        particles.forEach((particle, index) => {
+            gsap.to(particle, {
+                duration: 3 + index,
+                x: Math.random() * 20 - 10,
+                y: Math.random() * 20 - 10,
+                ease: "power2.inOut",
+                yoyo: true,
+                repeat: -1
+            });
+        });
+
+        // 初始化3D场景
+        if (threeContainer) {
+            initThreeJS();
+        }
+
+        console.log('🎮 游戏化健康档案系统已加载完成！');
+        console.log('📊 当前等级: Lv.3');
+        console.log('💎 经验值: 750/1000 XP');
+        console.log('🏆 成就系统已激活');
+        console.log('👤 Ready Player Me 3D虚拟人像已激活');
+        console.log('🎯 虚拟人像URL: https://models.readyplayer.me/68ccbdc0847fca11a7bb1d5e.glb');
+    </script>
+
+    <script>
+        // 切换到原版页面
+        function switchToOriginalMode() {
+            console.log('切换到原版页面');
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

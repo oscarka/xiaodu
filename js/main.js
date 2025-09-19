@@ -5,6 +5,13 @@ document.addEventListener('DOMContentLoaded', function() {
     initApp();
 });
 
+// 切换到小度智能屏版
+function switchToXiaoduMode() {
+    console.log('切换到小度智能屏版');
+    // 跳转到小度版页面
+    window.location.href = 'page.html';
+}
+
 function initApp() {
     console.log('开始初始化应用组件');
     
